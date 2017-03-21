@@ -1,0 +1,6 @@
+.idea/
+node_modules/
+lib/
+src/bower_components/
+YoutubeTracker.css
+YoutubeTracker.js
