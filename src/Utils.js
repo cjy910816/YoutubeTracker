@@ -6,8 +6,8 @@ export default class Utils {
         sec: 0
       },
       minFloat = floatTime / 60,
-      hourFloat = floatTime / 60;
-
+      hourFloat = minFloat / 60;
+    
     if (floatTime) {
       time.sec = Math.floor(floatTime);
       time.min = Math.floor(minFloat);
@@ -24,7 +24,8 @@ export default class Utils {
 
   static paddingLeft(value, length = 2) {
     if (value.toString().length < length) {
-      return '0' + value;
+      value = '0' + value;
     }
+    return value;
   }
 }

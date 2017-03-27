@@ -69,6 +69,7 @@ export default class Player {
     this._$pauseButton = this._$parent.find('button.pause');
     this._$progressBar = this._$parent.find('.progress');
     this._$progressBarCursor = this._$parent.find('.progress > .progress-bar');
+    this._$timer = this._$parent.find(".timer");
 
     this._$pauseButton.hide();
 
@@ -118,19 +119,20 @@ export default class Player {
   }
 
   updateProgressBarCursor(percent) {
+    console.log(percent);
     this._$progressBarCursor.css({'width': percent + '%'});
   }
 
   startTimer() {
     var timerFn, timerOut = null;
+    var classme = this;
 
     ((delay) => {
       setTimeout(timerFn = () => {
         if (this.currentTime) {
           const curTime = Utils.getTimeByFloat(this.currentTime),
             duration = Utils.getTimeByFloat(this.duration),
-            progressPercents = Math.floor((
-              this.currentTime * 100) / this.duration);
+            progressPercents = Math.floor(((classme.currentTime * 100) / classme.duration)*100)/100;
           let line;
 
           if (duration.min) {
@@ -150,7 +152,7 @@ export default class Player {
             duration.sec;
 
           if (timerOut !== line && !isNaN(duration.sec)) {
-            // this.updateTimer(line);
+            this._$timer.html(line);
             this.updateProgressBarCursor(progressPercents);
           }
           timerOut = line;
