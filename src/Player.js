@@ -8,6 +8,15 @@ export default class Player {
     this._options = options;
     this.render();
     this.renderControls();
+    if(this._options.firebase !== undefined){
+      this._logRef = this._options.firebase;
+    }
+
+    this._uuid = Utils.readCookie("uuid");
+    if(this._uuid === undefined || this._uuid == null){
+      this._uuid = Utils.guid();
+      Utils.createCookie("uuid", this._uuid, 30);
+    }
   }
 
   render() {
@@ -89,7 +98,13 @@ export default class Player {
   }
 
   onStateChange(event) {
-    console.log('[' + new Date() + '] Video State Changed to : ' + event.data);
+    this._logRef.push({
+      date: new Date().toISOString(),
+      user: this._uuid,
+      videoID: this._options.videoId,
+      event: event.data == 1 ? "Playing" : "Stopped"
+    });
+
     if (event.data === 1) { // Playing
       this._$playButton.hide();
       this._$pauseButton.show();

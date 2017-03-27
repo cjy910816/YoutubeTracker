@@ -28,4 +28,44 @@ export default class Utils {
     }
     return value;
   }
+
+  static createCookie(name, value, days) {
+    let expires;
+
+    if (days) {
+      let date = new Date();
+
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = '; expires=' + date.toGMTString();
+    }
+    else expires = '';
+    document.cookie = name + '=' + value + expires + '; path=/';
+  }
+
+  static readCookie(name) {
+    const nameEQ = name + '=';
+    const ca = document.cookie.split(';');
+
+    for (let i = 0 ; i < ca.length ; i++) {
+      let c = ca[i];
+
+      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
+
+  static eraseCookie(name) {
+    this.createCookie(name, '', -1);
+  }
+
+  static guid() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+        .toString(16)
+        .substring(1);
+    }
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+      s4() + '-' + s4() + s4() + s4();
+  }
 }

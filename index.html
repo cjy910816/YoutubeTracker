@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
 
-
+        <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
         <link rel="stylesheet" href="lib/YoutubeTracker.css">
         <script src="./node_modules/jquery/dist/jquery.min.js"></script>
         <!-- Latest compiled and minified JavaScript -->
@@ -18,17 +18,21 @@
     <div id="player"></div>
     <div id="player2"></div>
     <script>
-        var aaa;
+      var dbRef = new Firebase('https://youtubetracking.firebaseio.com/');
+      var _logRef = dbRef.child('logs');
+
         $(document).ready(function(){
           $.fn.YoutubeTracker = function (options) {
             var player = new YoutubeTracker(this, options);
             return player;
           };
           aaa = $("#player").YoutubeTracker({
-            videoId: "YK9m0wkwjTE"
+            videoId: "YK9m0wkwjTE",
+            firebase: dbRef.child('logs/YK9m0wkwjTE')
           });
           aaa = $("#player2").YoutubeTracker({
-            videoId: "tIhiTbJJ73M"
+            videoId: "tIhiTbJJ73M",
+            firebase: dbRef.child('logs/tIhiTbJJ73M')
           });
         })
     </script>
