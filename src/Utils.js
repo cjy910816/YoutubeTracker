@@ -7,7 +7,7 @@ export default class Utils {
       },
       minFloat = floatTime / 60,
       hourFloat = minFloat / 60;
-    
+
     if (floatTime) {
       time.sec = Math.floor(floatTime);
       time.min = Math.floor(minFloat);

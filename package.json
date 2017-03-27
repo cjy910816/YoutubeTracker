@@ -1,8 +1,8 @@
 {
-  "name": "youtubue-tracker",
+  "name": "youtube-tracker",
   "version": "1.0.0",
-  "description": "Tracking events while wathcing youtube videos with custom navigation bar.",
-  "main": "index.js",
+  "description": "tracking event while wathcing video from youtube",
+  "main": "lib/YoutubeTracker.js",
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --display-error-details --progress --colors --watch --env dev",
@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/cjy910816/YoutubeTracker#readme",
   "devDependencies": {
-    "http-server": "^0.9.0",
+    "autoprefixer-loader": "^3.2.0",
     "babel": "6.5.2",
     "babel-core": "6.22.1",
     "babel-eslint": "7.1.1",
@@ -29,9 +29,14 @@
     "babel-plugin-add-module-exports": "0.1.2",
     "babel-preset-es2015": "6.22.0",
     "chai": "3.4.1",
+    "css-loader": "^0.27.3",
     "eslint": "1.7.2",
     "eslint-loader": "1.6.1",
+    "extract-text-webpack-plugin": "^2.1.0",
+    "less": "^2.7.2",
+    "less-loader": "^3.0.0",
     "mocha": "2.3.4",
+    "style-loader": "^0.14.1",
     "webpack": "2.2.1",
     "yargs": "6.6.0"
   },

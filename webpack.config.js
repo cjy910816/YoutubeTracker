@@ -36,16 +36,11 @@ const config = {
                 test: /(\.jsx|\.js)$/,
                 loader: "eslint-loader",
                 exclude: /node_modules/
-            },
-          {
-            test: /(\.less)$/i,
-            loader: 'style-loader!css-loader!less-loader',
-            exclude: /(node_modules|bower_components)/
-          }
+            }
         ]
     },
     resolve: {
-        extensions: [ '.json', '.js', '.css'],
+        extensions: [ '.json', '.js'],
 
     },
     plugins: plugins

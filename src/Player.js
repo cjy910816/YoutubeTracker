@@ -40,10 +40,9 @@ export default class Player {
   renderControls() {
     const template = {
       playpause:
-      '<div class="navbar-left nav">        <button class="btn pause">' +
-      '<em class="glyphicon glyphicon-pause"></em></button>' +
-      '        <button class="btn play">' +
-      '<em class="glyphicon glyphicon-play"></em></button></div>',
+      '<div class="navbar-left nav">' +
+      '<button class="btn pause"><em class="glyphicon glyphicon-pause"></em></button>' +
+      '<button class="btn play"><em class="glyphicon glyphicon-play"></em></button></div>',
       progress:
         '    <div class="progress nav navbar-text"><div class="progress-bar">&nbsp;</div></div>',
       quality:
@@ -51,8 +50,10 @@ export default class Player {
       timer:
         '    <div class="nav navbar-text timer">00:00 | 00:00</div>',
       mute:
-      '        <button class="btn navbar-btn mute"><!-- --></button>' +
-      '        <button class="btn navbar-btn unmute"><!-- --></button>',
+      '<div class="navbar-left nav">' +
+      '<button class="btn mute" style="margin-right: 10px;"><em class="glyphicon glyphicon-volume-off"></em></button>' +
+      '<button class="btn unmute"><em class="glyphicon glyphicon-volume-up"></em></button>' +
+      '</div>',
       fullscreen:
       '        <button class="btn navbar-btn enterFullscreen"><!-- --></button>' +
       '        <button class="btn navbar-btn leaveFullscreen"><!-- --></button>'
@@ -67,14 +68,18 @@ export default class Player {
 
     this._$playButton = this._$parent.find('button.play');
     this._$pauseButton = this._$parent.find('button.pause');
+    this._$muteButton = this._$parent.find('button.mute');
+    this._$unMuteButton = this._$parent.find('button.unmute');
     this._$progressBar = this._$parent.find('.progress');
     this._$progressBarCursor = this._$parent.find('.progress > .progress-bar');
-    this._$timer = this._$parent.find(".timer");
+    this._$timer = this._$parent.find('.timer');
 
     this._$pauseButton.hide();
 
     this._$playButton.on('click', () => { this.play(); });
     this._$pauseButton.on('click', () => { this.pause(); });
+    this._$muteButton.on('click', () => { this.mute(); });
+    this._$unMuteButton.on('click', () => { this.unMute(); });
     this._$progressBar.on('click', (event) => { this.handleProgressBar(event); });
 
   }
@@ -106,6 +111,14 @@ export default class Player {
     this._player.pauseVideo();
   }
 
+  mute() {
+    this._player.mute();
+  }
+
+  unMute() {
+    this._player.unMute();
+  }
+
   get currentTime() {
     return this._player.getCurrentTime();
   }
@@ -119,7 +132,6 @@ export default class Player {
   }
 
   updateProgressBarCursor(percent) {
-    console.log(percent);
     this._$progressBarCursor.css({'width': percent + '%'});
   }
 
@@ -132,7 +144,7 @@ export default class Player {
         if (this.currentTime) {
           const curTime = Utils.getTimeByFloat(this.currentTime),
             duration = Utils.getTimeByFloat(this.duration),
-            progressPercents = Math.floor(((classme.currentTime * 100) / classme.duration)*100)/100;
+            progressPercents = Math.floor(((classme.currentTime * 100) / classme.duration) * 100) / 100;
           let line;
 
           if (duration.min) {
@@ -159,6 +171,6 @@ export default class Player {
         }
         setTimeout(timerFn, delay);
       }, delay);
-    })(100);
+    })(150);
   }
 }
