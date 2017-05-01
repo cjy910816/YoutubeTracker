@@ -8,7 +8,13 @@ export default class Player {
     this._options = options;
     this.render();
     this.renderControls();
-    if(this._options.firebase !== undefined){
+
+    if(options.play_data){
+      this._play_data = options.play_data;
+      this._data_position = 0;
+    }
+
+    if (this._options.firebase !== undefined){
       this._logRef = this._options.firebase;
     }
 
@@ -26,7 +32,10 @@ export default class Player {
       videoId: videoId,
       width: 640,
       playerVars: {
-        controls: 0
+        controls: 0,
+        rel: 0,
+        showinfo: 0,
+        modestbranding: 1
       },
       events: {
         'onReady': this.onReady.bind(this),
@@ -42,6 +51,15 @@ export default class Player {
     offset = event.clientX - this._$progressBar.offset().left;
     percent = Math.floor(offset / (this._$progressBar.width() / 100));
     newCursorTime = this.duration / 100 * percent;
+
+    if(this._play_data != undefined){
+      for(let i = 0 ; i < this._play_data.length ; i++){
+        if(this._play_data[i].start_time < newCursorTime && this._play_data[i].end_time > newCursorTime){
+          this._data_position = i;
+        }
+      }
+    }
+
     this.updateProgressBarCursor(percent);
     this.currentTime = newCursorTime;
   }
@@ -98,12 +116,15 @@ export default class Player {
   }
 
   onStateChange(event) {
-    this._logRef.push({
-      date: new Date().toISOString(),
-      user: this._uuid,
-      videoID: this._options.videoId,
-      event: event.data == 1 ? "Playing" : "Stopped"
-    });
+
+    if(this._logRef !== undefined){
+      this._logRef.push({
+        date: new Date().toISOString(),
+        user: this._uuid,
+        videoID: this._options.videoId,
+        event: event.data == 1 ? "Playing" : "Stopped"
+      });
+    }
 
     if (event.data === 1) { // Playing
       this._$playButton.hide();
@@ -111,6 +132,10 @@ export default class Player {
     }else {
       this._$playButton.show();
       this._$pauseButton.hide();
+    }
+
+    if(event.data === 0){
+      this._data_position = 0;
     }
   }
 
@@ -162,27 +187,40 @@ export default class Player {
             progressPercents = Math.floor(((classme.currentTime * 100) / classme.duration) * 100) / 100;
           let line;
 
-          if (duration.min) {
-            curTime.sec = Utils.paddingLeft(curTime.sec);
-            duration.sec = Utils.paddingLeft(duration.sec);
-          }
-          if (duration.hours) {
-            curTime.min = Utils.paddingLeft(curTime.min);
-            duration.min = Utils.paddingLeft(duration.min);
-          }
-          line = (duration.hours ? curTime.hours + ':' : '') +
-            (duration.min ? curTime.min + ':' : '') +
-            curTime.sec +
-            ' | ' +
-            (duration.hours ? duration.hours + ':' : '') +
-            (duration.min ? duration.min + ':' : '') +
-            duration.sec;
+          if(this._play_data[this._data_position] && this.currentTime > this._play_data[this._data_position].end_time + 1){ // pass duration
+            let offset, percent, newCursorTime;
 
-          if (timerOut !== line && !isNaN(duration.sec)) {
-            this._$timer.html(line);
-            this.updateProgressBarCursor(progressPercents);
+            percent = Math.floor(((classme._play_data[classme._data_position].start_time * 100) / classme.duration) * 100) / 100;
+            newCursorTime = classme.duration / 100 * percent;
+            this.updateProgressBarCursor(percent);
+            this.currentTime = classme._play_data[this._data_position].start_time;
+
+            if(this._play_data.length > this._data_position){
+              this._data_position++;
+            }
+          }else{
+            if (duration.min) {
+              curTime.sec = Utils.paddingLeft(curTime.sec);
+              duration.sec = Utils.paddingLeft(duration.sec);
+            }
+            if (duration.hours) {
+              curTime.min = Utils.paddingLeft(curTime.min);
+              duration.min = Utils.paddingLeft(duration.min);
+            }
+            line = (duration.hours ? curTime.hours + ':' : '') +
+              (duration.min ? curTime.min + ':' : '') +
+              curTime.sec +
+              ' | ' +
+              (duration.hours ? duration.hours + ':' : '') +
+              (duration.min ? duration.min + ':' : '') +
+              duration.sec;
+
+            if (timerOut !== line && !isNaN(duration.sec)) {
+              this._$timer.html(line);
+              this.updateProgressBarCursor(progressPercents);
+            }
+            timerOut = line;
           }
-          timerOut = line;
         }
         setTimeout(timerFn, delay);
       }, delay);
