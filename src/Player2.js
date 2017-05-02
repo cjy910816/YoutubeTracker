@@ -6,6 +6,7 @@ export default class Player2 {
     this._$parent = $element.parent();
     this._api = api;
     this._options = options;
+    this._isPaused = false;
     this.render();
     this.renderControls();
 
@@ -56,6 +57,9 @@ export default class Player2 {
         rel: 0,
         showinfo: 0,
         modestbranding: 1
+      },
+      events:{
+        'onStateChange': this.onPreivewStateChange.bind(this)
       }
     });
   }
@@ -155,6 +159,10 @@ export default class Player2 {
     }
   }
 
+  onPreivewStateChange(event){
+    this._previewPlayerState = event.data;
+  }
+
   play() {
     this._player.playVideo();
   }
@@ -183,6 +191,14 @@ export default class Player2 {
     if (currentTime !== undefined) this._player.seekTo(currentTime, true);
   }
 
+  set previewCurrentTime(currentTime){
+
+    if (currentTime !== undefined){
+      this._previewPlayer.seekTo(currentTime, true);
+      this._previewPlayer.playVideo();
+    }
+  }
+
   get duration() {
     return this._player.getDuration();
   }
@@ -203,19 +219,29 @@ export default class Player2 {
             progressPercents = Math.floor(((classme.currentTime * 100) / classme.duration) * 100) / 100;
           let line;
 
+
           if(this._play_data[this._data_position] && this.currentTime > this._play_data[this._data_position].end_time + 1){ // pass duration
+            console.log(this.currentTime);
             classme.pause();
+
 
             // preview를 구간만큼 재생한다.
             let offset, percent, newCursorTime;
 
-            percent = Math.floor(((classme._play_data[classme._data_position].start_time * 100) / classme.duration) * 100) / 100;
+            // percent = Math.floor(((classme._play_data[classme._data_position].start_time * 100) / classme.duration) * 100) / 100;
             newCursorTime = classme.duration / 100 * percent;
-            this.updateProgressBarCursor(percent);
-            this.currentTime = classme._play_data[this._data_position].start_time;
+            // this.updateProgressBarCursor(percent);
+            this.previewCurrentTime = classme._play_data[this._data_position].start_time;
 
             if(this._play_data.length > this._data_position){
               this._data_position++;
+            }
+          }else if(classme._previewPlayerState != undefined && classme._previewPlayerState == 1){
+            let previewCur = this._previewPlayer.getCurrentTime();
+            
+            if(classme._data_position >= 1 && previewCur > classme._play_data[classme._data_position-1].end_time){
+              classme._previewPlayer.pauseVideo();
+              classme.play();
             }
           }else{
             if (duration.min) {
