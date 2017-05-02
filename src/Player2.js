@@ -238,7 +238,7 @@ export default class Player2 {
             }
           }else if(classme._previewPlayerState != undefined && classme._previewPlayerState == 1){
             let previewCur = this._previewPlayer.getCurrentTime();
-            
+
             if(classme._data_position >= 1 && previewCur > classme._play_data[classme._data_position-1].end_time){
               classme._previewPlayer.pauseVideo();
               classme.play();
