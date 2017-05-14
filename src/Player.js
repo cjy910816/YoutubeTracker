@@ -6,13 +6,15 @@ export default class Player {
     this._$parent = $element.parent();
     this._api = api;
     this._options = options;
-    this.render();
-    this.renderControls();
+    this._isPaused = false;
 
     if(options.play_data){
       this._play_data = options.play_data;
       this._data_position = 0;
     }
+
+    this.render();
+    this.renderControls();
 
     if (this._options.firebase !== undefined){
       this._logRef = this._options.firebase;
@@ -23,6 +25,16 @@ export default class Player {
       this._uuid = Utils.guid();
       Utils.createCookie("uuid", this._uuid, 30);
     }
+  }
+
+  set data_position(position){
+    this._data_position = position;
+    console.log(this._$picker.text('(' + (this.data_position +1)+ '/' + this._play_data.length + ')') );
+
+  }
+
+  get data_position(){
+    return this._data_position;
   }
 
   render() {
@@ -55,7 +67,7 @@ export default class Player {
     if(this._play_data != undefined){
       for(let i = 0 ; i < this._play_data.length ; i++){
         if(this._play_data[i].start_time < newCursorTime && this._play_data[i].end_time > newCursorTime){
-          this._data_position = i;
+          this.data_position = i;
         }
       }
     }
@@ -71,9 +83,14 @@ export default class Player {
       '<button class="btn pause"><em class="glyphicon glyphicon-pause"></em></button>' +
       '<button class="btn play"><em class="glyphicon glyphicon-play"></em></button></div>',
       progress:
-        '    <div class="progress nav navbar-text"><div class="progress-bar">&nbsp;</div></div>',
-      quality:
-        '    <div class="nav navbar-text quality">&nbsp;</div>',
+      '<div class="progress-wrapper nav navbar-text">' +
+      '<div class="progress-picker"><div class="progress-bar">&nbsp;</div></div>' +
+      '<div class="progress"><div class="progress-bar">&nbsp;</div></div>' +
+      '</div>',
+      picker:
+      '    <div class="nav navbar-text picker"> (' +
+      (this.data_position + 1) + '/' + this._play_data.length  + ')' +
+      '</div>',
       timer:
         '    <div class="nav navbar-text timer">00:00 | 00:00</div>',
       mute:
@@ -89,7 +106,7 @@ export default class Player {
     this._$parent.append(`<div class="controls navbar"> <div class="navbar-inner">
                         ${template.playpause}
                         ${template.progress}
-                        ${template.quality}
+                        ${template.picker}
                         ${template.timer}
                         ${template.mute}</div></div>`);
 
@@ -97,8 +114,9 @@ export default class Player {
     this._$pauseButton = this._$parent.find('button.pause');
     this._$muteButton = this._$parent.find('button.mute');
     this._$unMuteButton = this._$parent.find('button.unmute');
-    this._$progressBar = this._$parent.find('.progress');
+    this._$progressBar = this._$parent.find('.progress-picker');
     this._$progressBarCursor = this._$parent.find('.progress > .progress-bar');
+    this._$picker = this._$parent.find(".picker");
     this._$timer = this._$parent.find('.timer');
 
     this._$pauseButton.hide();
@@ -107,12 +125,24 @@ export default class Player {
     this._$pauseButton.on('click', () => { this.pause(); });
     this._$muteButton.on('click', () => { this.mute(); });
     this._$unMuteButton.on('click', () => { this.unMute(); });
-    this._$progressBar.on('click', (event) => { this.handleProgressBar(event); });
+    this._$progressBar.on('click', (event) => {
+      this.handleProgressBar(event);
+      // console.log('hello');
+    });
 
   }
 
   onReady() {
     this.startTimer();
+    this._$progressBar.empty();
+    var last_time = 0;
+    console.log(this.duration);
+    for(var i = 0 ; i < this._play_data.length ; i++){
+      console.log(this._play_data[i]);
+      var length = this._play_data[i].end_time - last_time;
+      this._$progressBar.append('<div class="progress-bar" style=width:' + (length / this.duration * 100)+ '%;">&nbsp;</div>');
+      last_time = this._play_data[i].end_time;
+    }
   }
 
   onStateChange(event) {
@@ -135,7 +165,7 @@ export default class Player {
     }
 
     if(event.data === 0){
-      this._data_position = 0;
+      this.data_position = 0;
     }
   }
 
@@ -187,16 +217,16 @@ export default class Player {
             progressPercents = Math.floor(((classme.currentTime * 100) / classme.duration) * 100) / 100;
           let line;
 
-          if(this._play_data[this._data_position] && this.currentTime > this._play_data[this._data_position].end_time + 1){ // pass duration
+          if(this._play_data[this.data_position] && this.currentTime > this._play_data[this.data_position].end_time + 1){ // pass duration
             let offset, percent, newCursorTime;
 
-            percent = Math.floor(((classme._play_data[classme._data_position].start_time * 100) / classme.duration) * 100) / 100;
+            percent = Math.floor(((classme._play_data[classme.data_position].start_time * 100) / classme.duration) * 100) / 100;
             newCursorTime = classme.duration / 100 * percent;
             this.updateProgressBarCursor(percent);
-            this.currentTime = classme._play_data[this._data_position].start_time;
+            this.currentTime = classme._play_data[this.data_position].start_time;
 
-            if(this._play_data.length > this._data_position){
-              this._data_position++;
+            if(this._play_data.length > this.data_position){
+              this.data_position++;
             }
           }else{
             if (duration.min) {
